@@ -3,7 +3,7 @@
 
 iso_name="archfiery-xfce4"
 iso_label="ARCHFIERY_XFCE4_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%d%m%Y)"
-iso_publisher="MikuX-Dev <https://github.com/MikuX-Dev>"
+iso_publisher="unknownjustuser <https://github.com/unknownjustuser>"
 iso_application="ARCHFIERY-XFCE4 Live/Installation/Rescue CD"
 iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%d.%m.%Y)"
 install_dir="arch"
@@ -28,7 +28,6 @@ file_permissions=(
   ["/root/.automated_script.sh"]="0:0:755"
   ["/root/bin/bin/random_script_runner.sh"]="0:0:755"
 
-  ["/usr/local/bin/livecd-sound"]="0:0:755"
   ["/usr/local/bin/livecd-sound"]="0:0:755"
   ["/usr/local/bin/choose-mirror"]="0:0:755"
   ["/usr/local/bin/Installation_guide"]="0:0:755"

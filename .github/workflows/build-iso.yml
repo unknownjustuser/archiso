@@ -2,7 +2,7 @@ name: Build Arch ISO with ArchInstall Commit
 
 on:
   push:
-    branches: [ bruh ] # [ master ]
+    branches: [ bruh ] # [ main ]
   release:
     types:
       - created
@@ -22,7 +22,7 @@ jobs:
         run: |
           cd /home/builder
           sudo -u builder bash -c '
-          ./build-iso.sh
+          ./build-iso.sh -p ./profile/xfce4
           '
       - uses: actions/upload-artifact@v3
         with:

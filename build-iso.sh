@@ -2,6 +2,8 @@
 
 set -e
 
+WORKDIR="/tmp/work"
+
 show_help() {
   echo "Usage: $0 [-o OUTPUT_DIR] [-p PROFILE_DIR]"
   echo "Options:"
@@ -37,17 +39,17 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
-echo "Creating dir"
-printf "\n"
-mkdir -p /tmp/work "$output_dir"
+echo -e "\n################\nCreating dir\n################\n"
+mkdir -p "$WORKDIR" "$output_dir"
 
-echo "Installing needed pkgs"
-printf "\n"
+echo -e "\n################\nInstalling needed pkgs\n################\n"
 sudo pacman --noconfirm --needed -S archiso mkinitcpio-archiso
 
-echo "Building"
-printf "\n"
+echo -e "\n################\nBuilding\n################\n"
 for dir in "$profile_dir"/*/; do
-  sudo mkarchiso -v -w /tmp/work/ -o "$output_dir" "$dir"
-  sudo rm -rf /tmp/work/.*
+  sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$dir"
+  # sudo rm -rf "$WORKDIR"/.*
 done
+
+echo -e "\n################\nDone!\n################\n"
+ls -ahl "$output_dir"
