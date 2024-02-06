@@ -1,5 +1,5 @@
 env:
-  GITHUB_TOKEN: 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
+  GITHUB_TOKEN: ENCRYPTED[bfb3d33e0caf269b7959f99b018c62a55f1913079681f6373a94e9106038408fd37d07271f0bc4d242c14f93b6e76c15]
 
 task:
   name: archiso
@@ -10,7 +10,7 @@ task:
     dockerfile: ci/Dockerfile
     cpu: 6
     memory: 16G
-  archiso_build_script: |
+  build_iso_script: |
     cd /home/builder
     sudo -u builder bash -c '
     sudo chown -R builder:builder .*
