@@ -1,0 +1,23 @@
+env:
+  GITHUB_TOKEN: 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
+
+task:
+  name: archiso
+  only_if: $CIRRUS_BRANCH == 'main'
+  cron: "0 8 */4 * *"
+  timeout_in: 120m
+  container:
+    dockerfile: ci/Dockerfile
+    cpu: 6
+    memory: 16G
+  archiso_build_script: |
+    cd /home/builder
+    sudo -u builder bash -c '
+    sudo chown -R builder:builder .*
+    git clone https://github.com/unknownjustuser/archiso.git
+    sudo chown -R builder:builder .*
+    cd archiso/
+    chmod +x *.sh
+    ./build-iso.sh -p profile/xfce4
+    ./push-iso.sh
+    '
