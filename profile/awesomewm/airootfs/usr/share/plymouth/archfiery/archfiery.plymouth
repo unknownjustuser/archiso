@@ -1,9 +1,0 @@
-[Plymouth Theme]
-Name=archfiery
-Description=default plymouth theme for archfiery
-Comment=Created By unknownjustuser (@Meshach)
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/archfiery
-ScriptFile=/usr/share/plymouth/themes/archfiery/archfiery.script
