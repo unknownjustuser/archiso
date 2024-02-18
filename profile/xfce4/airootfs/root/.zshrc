@@ -2,10 +2,6 @@
 # ~/.zshrc
 #
 
-# script that runs before
-# neofetch
-random_script_runner
-
 # Created by newuser for 5.9
 eval "$(starship init zsh)"
 
@@ -18,9 +14,9 @@ HISTFILE=~/.zsh_history
 [[ $- != *i* ]] && return
 
 # Uncomment one of the following lines to change the auto-update behavior
-zstyle ':omz:update' mode disabled # disable automatic updates
+# zstyle ':omz:update' mode disabled # disable automatic updates
 # zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
+zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 # enable completion features
 autoload -Uz compinit
 compinit -d ~/.cache/zcompdump
@@ -67,6 +63,9 @@ bindkey '^[[H' beginning-of-line               # home
 bindkey '^[[F' end-of-line                     # end
 bindkey '^[[Z' undo                            # shift + tab undo last action
 
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
+
 # User configuration
 # Source
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
@@ -81,6 +80,37 @@ export PATH="$HOME/go/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/n
 # export LANG=en_US.UTF-8
 
 export EDITOR='vim'
+
+# Install missing pkgs
+if ! command -v paru &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/paru.git
+    pushd paru
+    makepkg -si
+    popd
+    rm -rf paru
+    cd -
+fi
+
+if ! command -v powerpill &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/powerpill.git
+    pushd powerpill
+    makepkg -si
+    popd
+    rm -rf powerpill
+    cd -
+fi
+
+if ! command -v rate-mirrors &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/rate-mirrors.git
+    pushd rate-mirrors
+    makepkg -si
+    popd
+    rm -rf rate-mirrors
+    cd -
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -163,10 +193,10 @@ alias egrep="egrep --color=auto"
 
 # Version Control (Git):
 alias g="git"
-alias gst="git status"
-alias gc="git commit -m "
+alias gs="git status"
+alias gc="git commit -m '$1'"
 alias ga="git add"
-alias gpl="git pull"
+alias gp="git pull"
 alias gpom="git pull origin master"
 alias gpu="git push"
 alias gpuom="git push origin master"
@@ -177,7 +207,7 @@ alias gac="git add . && git commit -m"
 alias grs="git restore --staged ."
 alias gre="git restore"
 alias gr="git remote"
-alias gcl="git clone"
+alias gc="git clone"
 alias glg="git log --graph --abbrev-commit --decorate --format=format:'%C(bold green)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold yellow)(%ar)%C(reset)%C(auto)%d%C(reset)%n'' %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all"
 alias gt="git ls-tree -r master --name-only"
 alias grm="git remote"
@@ -199,9 +229,9 @@ alias dfp='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME push'
 # Pacman Shortcuts
 alias sync="sudo pacman -Syyy"
 alias install="sudo pacman -S"
-alias update="sudo pacman -Syyu; yay -Syu"
 alias search="sudo pacman -Ss"
 alias search-local="sudo pacman -Qs"
+alias update='sudo pacman -Sy && sudo powerpill -Suq && paru -Su'
 alias pkg-info="sudo pacman -Qi"
 alias local-install="sudo pacman -U"
 alias clr-cache="yes | sudo pacman -Scc"
@@ -218,21 +248,13 @@ alias q="exit"
 # alias code="codium" # vscodium
 
 # Working directory:
-alias work="cd ~/Data-Linux/work"
-alias data="cd ~/Data-Linux/"
+# alias work="cd ~/Data-Linux/work"
+# alias data="cd ~/Data-Linux/"
 # alias gh="cd ~/desktop/work/github"
 # alias gl="cd ~/desktop/work/gitlab"
 
-alias update='sudo pacman -Syyu'
-alias upate='sudo pacman -Syyu'
-alias updte='sudo pacman -Syyu'
-alias updqte='sudo pacman -Syyu'
-alias upall='sudo pacman -Syyu; yay -Syu'
-alias upal='sudo pacman -Syyu; yay -Syu'
-
-alias updatemirror='sudo reflector -f 10 --download-timeout 25 -l 10 -a 10 -p https --sort rate --save /etc/pacman.d/mirrorlist'
-
-alias cleancache='yes | yay -Scc'
+alias updatemirror='rate-mirrors arch | sudo tee /etc/pacman.d/mirrorlist'
+alias cleancache='paru -Scc --noconfirm'
 
 alias poeweroff='sudo poeweroff'
 alias reboot='sudo reboot'

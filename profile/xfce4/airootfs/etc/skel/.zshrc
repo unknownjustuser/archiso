@@ -2,10 +2,6 @@
 # ~/.zshrc
 #
 
-# script that runs before
-# neofetch
-random_script_runner
-
 # Created by newuser for 5.9
 eval "$(starship init zsh)"
 
@@ -67,6 +63,9 @@ bindkey '^[[H' beginning-of-line               # home
 bindkey '^[[F' end-of-line                     # end
 bindkey '^[[Z' undo                            # shift + tab undo last action
 
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
+
 # User configuration
 # Source
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
@@ -81,6 +80,37 @@ export PATH="$HOME/go/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.local/share/n
 # export LANG=en_US.UTF-8
 
 export EDITOR='vim'
+
+# Install missing pkgs
+if ! command -v paru &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/paru.git
+    pushd paru
+    makepkg -si
+    popd
+    rm -rf paru
+    cd -
+fi
+
+if ! command -v powerpill &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/powerpill.git
+    pushd powerpill
+    makepkg -si
+    popd
+    rm -rf powerpill
+    cd -
+fi
+
+if ! command -v rate-mirrors &> /dev/null; then
+    cd /tmp
+    git clone https://aur.archlinux.org/rate-mirrors.git
+    pushd rate-mirrors
+    makepkg -si
+    popd
+    rm -rf rate-mirrors
+    cd -
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -199,9 +229,9 @@ alias dfp='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME push'
 # Pacman Shortcuts
 alias sync="sudo pacman -Syyy"
 alias install="sudo pacman -S"
-alias update="sudo pacman -Syyu; yay -Syu"
 alias search="sudo pacman -Ss"
 alias search-local="sudo pacman -Qs"
+alias update='sudo pacman -Sy && sudo powerpill -Suq && paru -Su'
 alias pkg-info="sudo pacman -Qi"
 alias local-install="sudo pacman -U"
 alias clr-cache="yes | sudo pacman -Scc"
@@ -223,16 +253,9 @@ alias data="cd ~/Data-Linux/"
 # alias gh="cd ~/desktop/work/github"
 # alias gl="cd ~/desktop/work/gitlab"
 
-alias update='sudo pacman -Syyu'
-alias upate='sudo pacman -Syyu'
-alias updte='sudo pacman -Syyu'
-alias updqte='sudo pacman -Syyu'
-alias upall='sudo pacman -Syyu; yay -Syu'
-alias upal='sudo pacman -Syyu; yay -Syu'
+alias updatemirror='rate-mirrors arch | sudo tee /etc/pacman.d/mirrorlist'
 
-alias updatemirror='sudo reflector -f 10 --download-timeout 25 -l 10 -a 10 -p https --sort rate --save /etc/pacman.d/mirrorlist'
-
-alias cleancache='yes | yay -Scc'
+alias cleancache='paru -Scc --noconfirm'
 
 alias poeweroff='sudo poeweroff'
 alias reboot='sudo reboot'
