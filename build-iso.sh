@@ -1,55 +1,56 @@
 #!/usr/bin/env bash
 
-set -e
+# Script name: build-iso.sh
+# Description: Automate archiso build script.
+# Contributors: unknownjustuser
 
-WORKDIR="/tmp/work"
+# Set flags to make robust
+set -euo pipefail
 
-show_help() {
-  echo "Usage: $0 [-o OUTPUT_DIR] [-p PROFILE_DIR]"
-  echo "Options:"
-  echo "  -o, --output     Specify the output directory (default: ./out)"
-  echo "  -p, --profile    Specify the Archiso profile directory (default: ./profile)"
-  echo "  -h, --help       Show this help message"
-}
-
-# Default values
+WORKDIR="./work"
 output_dir="./out"
 profile_dir="./profile"
+xfce="$profile_dir/xfce4"
 
-while [[ "$#" -gt 0 ]]; do
-  case $1 in
-  -o | --output)
-    output_dir="$2"
-    shift
-    ;;
-  -p | --profile)
-    profile_dir="$2"
-    shift
-    ;;
-  -h | --help)
-    show_help
-    exit 0
-    ;;
-  *)
-    echo "Unknown option: $1"
-    show_help
-    exit 1
-    ;;
-  esac
-  shift
-done
+# Directories to be used within the script
+declare -a dirs=(
+  "$WORKDIR"
+  "$output_dir"
+)
 
-echo -e "\n################\nCreating dir\n################\n"
-mkdir -p "$WORKDIR" "$output_dir"
+# Create needed dirs
+create_directories() {
+  mkdir -p "${dirs[@]}"
+}
 
-echo -e "\n################\nInstalling needed pkgs\n################\n"
-sudo pacman --noconfirm --needed -S archiso mkinitcpio-archiso
+# Function to cleanup directories on script exit or interrupt
+cleanup() {
+  echo "Cleaning up..."
+  rm -rf "$WORKDIR"
+  exit 1
+}
 
-echo -e "\n################\nBuilding\n################\n"
-for dir in "$profile_dir"/*/; do
-  sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$dir"
-  # sudo rm -rf "$WORKDIR"/.*
-done
+trap cleanup INT
 
-echo -e "\n################\nDone!\n################\n"
-ls -ahl "$output_dir"
+INP() {
+  echo "Installing needed pkgs"
+  if ! sudo pacman -Qq archiso; then
+    echo "archiso package is not installed. Installing..."
+    sudo pacman --noconfirm --needed -S archiso
+  fi
+}
+
+build() {
+  echo "Building"
+  sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
+  # for dir in "$profile_dir"/*/; do
+  # mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$dir"
+  # rm -rf "$WORKDIR"/.*
+  # done
+}
+
+# Main execution flow
+create_directories
+INP
+build
+cleanup

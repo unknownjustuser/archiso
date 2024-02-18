@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Script name: push-iso.sh
+# Description: Automate archiso push script.
+# Contributors: unknownjustuser
+
 if [[ "$CIRRUS_RELEASE" == "" ]]; then
   echo "Not a release. No need to deploy!"
   exit 0
