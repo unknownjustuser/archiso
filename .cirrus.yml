@@ -7,11 +7,19 @@ task:
   cron: "0 8 * * 0"
   timeout_in: 60m
   container:
-    dockerfile: ci/Dockerfile
+    image: archlinux:base-devel
     cpu: 6
     memory: 16G
+  archiso_docker: |
+    pacman-key --init && pacman-key --recv-key 3056513887B78AEB  --keyserver keyserver.ubuntu.com && pacman-key --lsign-key 3056513887B78AEB  && pacman --noconfirm -U 'https://geo-mirror.chaotic.cx/chaotic-aur/chaotic-'{keyring,mirrorlist}'.pkg.tar.zst' && echo "[multilib]" >>/etc/pacman.conf && echo "Include = /etc/pacman.d/mirrorlist" >>/etc/pacman.conf && echo -e "\\n[chaotic-aur]\\nInclude = /etc/pacman.d/chaotic-mirrorlist" >>/etc/pacman.conf && echo "" >>/etc/pacman.conf && pacman -Syu --noconfirm python-apprise reflector rsync curl wget git-lfs openssh base-devel devtools sudo git lib32-readline lib32-zlib namcap fakeroot audit grep diffutils parallel archiso btrfs-progs lsb-release wget cronie && pacman -Scc --noconfirm
+
+    sh <(wget -qO- https://blackarch.org/strap.sh) --noconfirm && pacman -Syyu --noconfirm
+
+    sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen && \
+    locale-gen && \
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    echo 'KEYMAP=us' > /etc/vconsole.conf
   build_iso_script: |
-    cd /home/builder
     ls -al
     git clone https://github.com/unknownjustuser/archiso.git
     cd archiso/
