@@ -13,10 +13,8 @@ task:
   build_iso_script: |
     cd /home/builder
     ls -al
-    sudo -u builder bash -c '
     git clone https://github.com/unknownjustuser/archiso.git
     cd archiso/
     chmod +x *.sh
-    sudo ./build-iso.sh profile iso
+    ./build-iso.sh profile iso
     ./push-iso.sh
-    '
