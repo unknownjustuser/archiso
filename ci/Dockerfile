@@ -1,34 +1,14 @@
 # Use the Arch Linux base image with development tools
 FROM archlinux:base-devel
 
-# Install BlackArch keyring and configure pacman
-RUN curl https://raw.githubusercontent.com/Athena-OS/package-source/main/packages/aegis/strap.sh -o strap.sh; chmod +x strap.sh; ./strap.sh; rm -rf strap.sh && \
-  pacman -Syyu --noconfirm --quiet --needed
+RUN pacman-key --init && pacman-key --recv-key 3056513887B78AEB  --keyserver keyserver.ubuntu.com && pacman-key --lsign-key 3056513887B78AEB  && pacman --noconfirm -U 'https://geo-mirror.chaotic.cx/chaotic-aur/chaotic-'{keyring,mirrorlist}'.pkg.tar.zst' && echo "[multilib]" >>/etc/pacman.conf && echo "Include = /etc/pacman.d/mirrorlist" >>/etc/pacman.conf && echo -e "\\n[chaotic-aur]\\nInclude = /etc/pacman.d/chaotic-mirrorlist" >>/etc/pacman.conf && echo "" >>/etc/pacman.conf && pacman -Syu --noconfirm python-apprise reflector rsync curl wget git-lfs openssh base-devel devtools sudo git lib32-readline lib32-zlib namcap fakeroot audit grep diffutils parallel archiso btrfs-progs lsb-release wget cronie && pacman -Scc --noconfirm
 
-RUN \
-  pacman-key --recv-key 3056513887B78AEB --keyserver keyserver.ubuntu.com && \
-  pacman-key --lsign-key 3056513887B78AEB && \
-  pacman -U --noconfirm --quiet --noprogressbar 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' && \
-  pacman -U --noconfirm --quiet --noprogressbar 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst' && \
-  echo -e "[chaotic-aur]\nInclude = /etc/pacman.d/mirrorlist" | tee -a /etc/pacman.conf && \
-  pacman -Syy
-
-RUN \
-  if grep -q "\[multilib\]" /etc/pacman.conf; then \
-  sed -i '/^\[multilib\]/,/Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf; \
-  else \
-  echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" | tee -a /etc/pacman.conf; \
-  fi
+RUN sh <(wget -qO- https://blackarch.org/strap.sh) && pacman -Syyu
 
 RUN sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen && \
   locale-gen && \
   echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
   echo 'KEYMAP=us' > /etc/vconsole.conf
-
-# Update the system and install essential packages
-RUN pacman -Syy --noconfirm --quiet --needed --noprogressbar archlinux-keyring
-
-RUN pacman -Syyu --noconfirm --quiet --needed --noprogressbar reflector rsync curl wget git-lfs openssh base-devel devtools sudo git lib32-readline lib32-zlib namcap fakeroot audit grep diffutils parallel archiso
 
 # Add builder User
 RUN useradd -m -d /home/builder -s /bin/bash -G wheel builder && \
