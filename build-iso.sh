@@ -23,7 +23,6 @@ readonly output="${orig_pwd}/output"
 readonly tmpdir_base="${orig_pwd}/tmp"
 readonly profile="${1}"
 readonly buildmode="${2}"
-readonly install_dir="arch"
 
 tmpdir=""
 tmpdir="$(mktemp --dry-run --directory --tmpdir="${tmpdir_base}")"
@@ -61,7 +60,6 @@ run_mkarchiso() {
   print_section_start "mkarchiso" "Running mkarchiso"
   mkdir -p "${output}/" "${tmpdir}/"
   ./archiso/mkarchiso \
-    -D "${install_dir}" \
     -o "${output}/" \
     -w "${tmpdir}/" \
     -m "${buildmode}" \
