@@ -16,16 +16,10 @@ RUN useradd -m -d /home/builder -s /bin/bash -G wheel builder && \
   echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
   echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# chown user
-RUN chown -R builder:builder /home/builder/
-
 USER builder
 WORKDIR /home/builder
 
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/bin/core_perl"
-
-# chown user
-RUN sudo chown -R builder:builder /home/builder/
 
 # install yay
 RUN \
@@ -40,3 +34,5 @@ RUN paru -Scc --noconfirm && yay -Scc --noconfirm && \
   paru -Syy
 
 USER root
+
+WORKDIR /tmp

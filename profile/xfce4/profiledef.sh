@@ -21,12 +21,12 @@ file_permissions=(
   ["/etc/sudoers.d"]="0:0:750"
 
   ["/etc/skel/bin"]="0:0:755"
-  ["/etc/skel/bin/random_script_runner.sh"]="0:0:755"
+  ["/etc/skel/bin/random_script_runner"]="0:0:755"
 
   ["/root"]="0:0:750"
   ["/root/bin"]="0:0:755"
   ["/root/.automated_script.sh"]="0:0:755"
-  ["/root/bin/bin/random_script_runner.sh"]="0:0:755"
+  ["/root/bin/bin/random_script_runner"]="0:0:755"
 
   ["/usr/local/bin/livecd-sound"]="0:0:755"
   ["/usr/local/bin/choose-mirror"]="0:0:755"
