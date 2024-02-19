@@ -27,52 +27,21 @@ readonly buildmode="${2}"
 tmpdir=""
 tmpdir="$(mktemp --dry-run --directory --tmpdir="${tmpdir_base}")"
 
-print_section_start() {
-  # gitlab collapsible sections start: https://docs.gitlab.com/ee/ci/jobs/#custom-collapsible-sections
-  local _section _title
-  _section="${1}"
-  _title="${2}"
-
-  printf "\e[0Ksection_start:%(%s)T:%s\r\e[0K%s\n" '-1' "${_section}" "${_title}"
-}
-
-print_section_end() {
-  # gitlab collapsible sections end: https://docs.gitlab.com/ee/ci/jobs/#custom-collapsible-sections
-  local _section
-  _section="${1}"
-
-  printf "\e[0Ksection_end:%(%s)T:%s\r\e[0K\n" '-1' "${_section}"
-}
-
 cleanup() {
   # clean up temporary directories
-  print_section_start "cleanup" "Cleaning up temporary directory"
-
   if [[ -n "${tmpdir_base:-}" ]]; then
     rm -fr "${tmpdir_base}"
   fi
-
-  print_section_end "cleanup"
 }
 
 run_mkarchiso() {
   # run mkarchiso
-  print_section_start "mkarchiso" "Running mkarchiso"
   mkdir -p "${output}/" "${tmpdir}/"
-  ./archiso/mkarchiso \
-    -o "${output}/" \
-    -w "${tmpdir}/" \
-    -m "${buildmode}" \
-    -v "configs/${profile}"
-
-  print_section_end "mkarchiso"
-
-  print_section_start "ownership" "Setting ownership on output"
+  ./archiso/mkarchiso -o "${output}/" -w "${tmpdir}/" -m "${buildmode}" -v "configs/${profile}"
 
   if [[ -n "${SUDO_UID:-}" ]] && [[ -n "${SUDO_GID:-}" ]]; then
     chown -Rv "${SUDO_UID}:${SUDO_GID}" -- "${output}"
   fi
-  print_section_end "ownership"
 }
 
 trap cleanup EXIT
