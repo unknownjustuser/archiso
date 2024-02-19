@@ -5,7 +5,7 @@ task:
   name: archiso
   only_if: $CIRRUS_BRANCH == 'main'
   cron: "0 8 * * 0"
-  timeout_in: 120m
+  timeout_in: 60m
   container:
     dockerfile: ci/Dockerfile
     cpu: 6
@@ -13,12 +13,8 @@ task:
   build_iso_script: |
     cd /home/builder
     ls -al
-    sudo -u builder bash -c '
-    sudo chown -R builder:builder .*
     git clone https://github.com/unknownjustuser/archiso.git
-    sudo chown -R builder:builder .*
     cd archiso/
     chmod +x *.sh
     ./build-iso.sh
     ./push-iso.sh
-    '

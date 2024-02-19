@@ -26,7 +26,7 @@ create_directories() {
 # Function to cleanup directories on script exit or interrupt
 cleanup() {
   echo "Cleaning up..."
-  sudo rm -rf "$WORKDIR"
+  rm -rf "$WORKDIR"
   exit 1
 }
 
@@ -34,15 +34,15 @@ trap cleanup INT
 
 INP() {
   echo "Installing needed pkgs"
-  if ! sudo pacman -Qq archiso; then
+  if ! pacman -Qq archiso; then
     echo "archiso package is not installed. Installing..."
-    sudo pacman --noconfirm --needed -S archiso
+    pacman --noconfirm --needed -S archiso
   fi
 }
 
 build() {
   echo "Building"
-  sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
+  mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
 }
 
 # Main execution flow

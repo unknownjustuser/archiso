@@ -40,5 +40,3 @@ RUN paru -Scc --noconfirm && yay -Scc --noconfirm && \
   paru -Syy
 
 USER root
-
-RUN chown -R builder:builder /home/builder/
