@@ -1,6 +1,4 @@
-"
 " ~/.vimrc
-"
 
 set nocompatible              " be iMproved, required
 filetype off                  " required
@@ -38,7 +36,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'     " Highlighting Nerdtree
     Plug 'ryanoasis/vim-devicons'                      " Icons for Nerdtree
 "{{ Productivity }}
-    " Plug 'ycm-core/YouCompleteMe'
+    Plug 'ycm-core/YouCompleteMe'
     Plug 'vimwiki/vimwiki'                             " VimWiki
     Plug 'jreybert/vimagit'                            " Magit-like plugin for vim
     Plug 'airblade/vim-gitgutter'
@@ -58,20 +56,13 @@ call plug#begin('~/.vim/plugged')
     Plug 'junegunn/vim-emoji'                          " Vim needs emojis!
     " c
     Plug 'vim-scripts/c.vim', {'for': ['c', 'cpp']}
-    " Plug 'xavierd/clang_complete'
+    Plug 'pulkomandy/c.vim'
+    Plug 'xavierd/clang_complete'
     Plug 'rhysd/vim-clang-format'
     Plug 'ludwig/split-manpage.vim'
-    " elixir
-    Plug 'elixir-lang/vim-elixir'
-    Plug 'carlosgaldino/elixir-snippets'
-    " elm
-    "" Elm Bundle
-    " Plug 'elmcast/elm-vim'
-    " erlang
-    " Plug 'jimenezrick/vimerl'
     " go
     "" Go Lang Bundle
-    " Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
+    Plug 'fatih/vim-go', {'do': ':GoInstallBinaries'}
     " haskell
     "" Haskell Bundle
     Plug 'eagletmt/neco-ghc'
@@ -93,21 +84,10 @@ call plug#begin('~/.vim/plugged')
     "" Lua Bundle
     Plug 'xolox/vim-lua-ftplugin'
     Plug 'xolox/vim-lua-inspect'
-    " ocaml
-    "" OCaml Bundle
-    " Plug 'def-lkb/ocp-indent-vim'
     " perl
     "" Perl Bundle
     Plug 'vim-perl/vim-perl'
     Plug 'c9s/perlomni.vim'
-    " php
-    "" PHP Bundle
-    " Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install --no-dev -o'}
-    " Plug 'stephpy/vim-php-cs-fixer'
-    " python
-    "" Python Bundle
-    Plug 'davidhalter/jedi-vim'
-    Plug 'raimon49/requirements.txt.vim', {'for': 'requirements'}
     " ruby
     Plug 'tpope/vim-rails'
     Plug 'tpope/vim-rake'
@@ -184,8 +164,8 @@ nnoremap <leader>pi :PlugInstall<CR>:source $MYVIMRC<CR>
 set encoding=utf-8
 " set fileencoding=utf-8
 set ttyfast
-set path+=**					" Searches current directory recursively.
-set wildmenu					" Display all matches when tab complete.
+set path+=**                    " Searches current directory recursively.
+set wildmenu                    " Display all matches when tab complete.
 set incsearch                   " Incremental search
 set hlsearch
 set ignorecase

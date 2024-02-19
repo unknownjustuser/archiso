@@ -26,7 +26,7 @@ create_directories() {
 # Function to cleanup directories on script exit or interrupt
 cleanup() {
   echo "Cleaning up..."
-  rm -rf "$WORKDIR"
+  sudo rm -rf "$WORKDIR"
   exit 1
 }
 
@@ -43,10 +43,6 @@ INP() {
 build() {
   echo "Building"
   sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
-  # for dir in "$profile_dir"/*/; do
-  # mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$dir"
-  # rm -rf "$WORKDIR"/.*
-  # done
 }
 
 # Main execution flow
