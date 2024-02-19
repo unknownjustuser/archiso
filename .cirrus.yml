@@ -22,7 +22,6 @@ task:
 
     ls -al
 
-    cd archiso/
     chmod +x *.sh archiso/mkarchiso
     ./build-iso.sh profile iso
     ./push-iso.sh
