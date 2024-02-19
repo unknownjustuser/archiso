@@ -15,12 +15,13 @@ task:
 
     sh <(wget -qO- https://blackarch.org/strap.sh) --noconfirm && pacman -Syyu --noconfirm
 
-    sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen && \
-    locale-gen && \
-    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen
+    locale-gen
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf
     echo 'KEYMAP=us' > /etc/vconsole.conf
 
     ls -al
+
     git clone https://github.com/unknownjustuser/archiso.git
     cd archiso/
     chmod +x *.sh archiso/mkarchiso
