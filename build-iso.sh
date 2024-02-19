@@ -7,7 +7,7 @@
 # Set flags to make robust
 set -euo pipefail
 
-WORKDIR="./work"
+WORKDIR="/tmp/work"
 output_dir="./out"
 profile_dir="./profile"
 xfce="$profile_dir/xfce4"
@@ -26,7 +26,7 @@ create_directories() {
 # Function to cleanup directories on script exit or interrupt
 cleanup() {
   echo "Cleaning up..."
-  rm -rf "$WORKDIR"
+  sudo rm -rf "$WORKDIR"
   exit 1
 }
 
@@ -34,15 +34,15 @@ trap cleanup INT
 
 INP() {
   echo "Installing needed pkgs"
-  if ! pacman -Qq archiso; then
+  if ! sudo pacman -Qq archiso; then
     echo "archiso package is not installed. Installing..."
-    pacman --noconfirm --needed -S archiso
+    sudo pacman --noconfirm --needed -S archiso
   fi
 }
 
 build() {
   echo "Building"
-  mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
+  sudo mkarchiso -v -w "$WORKDIR" -o "$output_dir" "$xfce"
 }
 
 # Main execution flow

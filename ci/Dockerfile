@@ -34,5 +34,3 @@ RUN paru -Scc --noconfirm && yay -Scc --noconfirm && \
   paru -Syy
 
 USER root
-
-WORKDIR /tmp
