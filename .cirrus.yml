@@ -28,8 +28,8 @@ task:
     ls -al
 
     sudo -u builder bash -c '
-    sudo chowm -R builder:builder *
-    sudo chowm -R builder:builder .*
+    sudo chown -R builder:builder *
+    sudo chown -R builder:builder .*
     chmod +x *.sh #archiso/mkarchiso
     sudo ./build-iso.sh profile iso
     ./push-iso.sh
