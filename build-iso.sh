@@ -59,7 +59,7 @@ run_mkarchiso() {
   # run mkarchiso
   print_section_start "mkarchiso" "Running mkarchiso"
   mkdir -p "${output}/" "${tmpdir}/"
-  ./archiso/mkarchiso \
+    mkarchiso \
     -o "${output}/" \
     -w "${tmpdir}/" \
     -m "${buildmode}" \
