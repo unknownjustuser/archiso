@@ -15,6 +15,6 @@ task:
     ls -al
     git clone https://github.com/unknownjustuser/archiso.git
     cd archiso/
-    chmod +x *.sh
+    chmod +x *.sh archiso/mkarchiso
     ./build-iso.sh profile iso
     ./push-iso.sh
