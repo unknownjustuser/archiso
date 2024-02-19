@@ -17,6 +17,6 @@ task:
     git clone https://github.com/unknownjustuser/archiso.git
     cd archiso/
     chmod +x *.sh
-    ./build-iso.sh
+    sudo ./build-iso.sh profile iso
     ./push-iso.sh
     '
