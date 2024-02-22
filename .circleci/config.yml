@@ -1,0 +1,52 @@
+version: 2.1
+
+jobs:
+  setup:
+    docker:
+      - image: cimg/base:current
+    resource_class: xlarge
+    working_directory: /tmp/archiso
+    steps:
+      - checkout:
+          path: /tmp/archiso
+      - run:
+          name: Setup Environment
+          command: |
+            docker build --rm -t archiso-docker .
+      - run: ls -al
+
+  build_archiso:
+    docker:
+      - image: cimg/base:current
+    resource_class: xlarge
+    working_directory: /tmp/archiso
+    steps:
+      - checkout:
+          path: /tmp/archiso
+      - run:
+          name: Build ArchISO
+          command: |
+            docker run -v $(pwd):/tmp -t -i --privileged archiso-docker
+
+  push_archiso:
+    docker:
+      - image: cimg/base:current
+    working_directory: /tmp/archiso
+    steps:
+      - checkout:
+          path: /tmp/archiso
+      - run:
+          name: Push Archiso
+          command: ./push-iso.sh
+
+workflows:
+  version: 2.1
+  build:
+    jobs:
+      - setup
+      - build_archiso:
+          requires:
+            - setup
+      - push_archiso:
+          requires:
+            - build_archiso
