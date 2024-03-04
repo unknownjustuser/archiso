@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   setup:
     docker:
-      - image: cimg/base:current
+      - image: unknownjustuser/arch:base-devel
     resource_class: large
     working_directory: /tmp/archiso
     steps:
@@ -12,12 +12,12 @@ jobs:
       - run:
           name: Setup Environment
           command: |
-            docker build --rm -t archiso-docker .
+            pacman -Syyu --noconfirm
       - run: ls -al
 
-  build_archiso:
+  build_push_archiso:
     docker:
-      - image: cimg/base:current
+      - image: unknownjustuser/arch:base-devel
     resource_class: large
     working_directory: /tmp/archiso
     steps:
@@ -26,27 +26,12 @@ jobs:
       - run:
           name: Build ArchISO
           command: |
-            docker run -v $(pwd):/tmp -t -i --privileged archiso-docker
-
-  push_archiso:
-    docker:
-      - image: cimg/base:current
-    working_directory: /tmp/archiso
-    steps:
-      - checkout:
-          path: /tmp/archiso
-      - run:
-          name: Push Archiso
-          command: ./push-iso.sh
+            ./build-iso.sh profile iso
 
 workflows:
-  version: 2.1
   build:
     jobs:
       - setup
-      - build_archiso:
+      - build_push_archiso:
           requires:
             - setup
-      - push_archiso:
-          requires:
-            - build_archiso

@@ -34,9 +34,10 @@ codesigning_key=""
 ca_cert=""
 ca_key=""
 pgp_key_id=""
+transfer_url="https://transfer.sh"
 
 print_section_start() {
-  # gitlab collapsible sections start: https://docs.gitlab.com/ee/ci/jobs/#custom-collapsible-sections
+  # Print start of a collapsible section for GitLab CI
   local _section _title
   _section="${1}"
   _title="${2}"
@@ -45,7 +46,7 @@ print_section_start() {
 }
 
 print_section_end() {
-  # gitlab collapsible sections end: https://docs.gitlab.com/ee/ci/jobs/#custom-collapsible-sections
+  # Print end of a collapsible section for GitLab CI
   local _section
   _section="${1}"
 
@@ -53,7 +54,7 @@ print_section_end() {
 }
 
 cleanup() {
-  # clean up temporary directories
+  # Clean up temporary directories
   print_section_start "cleanup" "Cleaning up temporary directory"
 
   if [[ -n "${tmpdir_base:-}" ]]; then
@@ -64,7 +65,7 @@ cleanup() {
 }
 
 create_checksums() {
-  # create checksums for files
+  # Create checksums for files
   # $@: files
   local _file_path _file_name _current_pwd
   _current_pwd="${PWD}"
@@ -88,7 +89,7 @@ create_checksums() {
 }
 
 create_zsync_delta() {
-  # create zsync control files for files
+  # Create zsync control files for files
   # $@: files
   local _file
 
@@ -107,7 +108,7 @@ create_zsync_delta() {
 }
 
 create_ephemeral_pgp_key() {
-  # create an ephemeral PGP key for signing the rootfs image
+  # Create an ephemeral PGP key for signing the rootfs image
   print_section_start "ephemeral_pgp_key" "Creating ephemeral PGP key"
 
   gnupg_homedir="$tmpdir/.gnupg"
@@ -152,12 +153,8 @@ EOF
 pgp_sender="ArchFiery Release Engineering (Ephemeral Signing Key) <unknown.just.user@proton.me>"
 
 create_ephemeral_codesigning_keys() {
-  # create ephemeral certificates used for codesigning
+  # Create ephemeral certificates used for codesigning
   print_section_start "ephemeral_codesigning_key" "Creating ephemeral codesigning keys"
-
-  # The exact steps in creating a CA with Codesigning being signed was taken from
-  # https://jamielinux.com/docs/openssl-certificate-authority/introduction.html
-  # (slight modifications to the process to not disturb default values of /etc/ssl/openssl.cnf)
 
   codesigning_dir="${tmpdir}/.codesigning/"
   local ca_dir="${codesigning_dir}/ca/"
@@ -231,8 +228,114 @@ EOF
   print_section_end "ephemeral_codesigning_key"
 }
 
+transfer() {
+  local file
+  declare -a file_array
+  file_array=("${@}")
+
+  if [[ "${#file_array[@]}" -eq 0 || "${1}" == "--help" || "${1}" == "-h" ]]; then
+    echo "${0} - Upload arbitrary files to \"transfer.sh\"."
+    echo ""
+    echo "Usage: ${0} [options] [<file>]..."
+    echo ""
+    echo "OPTIONS:"
+    echo "  -h, --help"
+    echo "      show this message"
+    echo ""
+    echo "EXAMPLES:"
+    echo "  Upload a single file from the current working directory:"
+    echo "      ${0} \"image.img\""
+    echo ""
+    echo "  Upload multiple files from the current working directory:"
+    echo "      ${0} \"image.img\" \"image2.img\""
+    echo ""
+    echo "  Upload a file from a different directory:"
+    echo "      ${0} \"/tmp/some_file\""
+    echo ""
+    echo "  Upload all files from the current working directory. Be aware of the webserver's rate limiting!:"
+    echo "      ${0} *"
+    echo ""
+    echo "  Upload a single file from the current working directory and filter out the delete token and download link:"
+    echo "      ${0} \"image.img\" | awk --field-separator=\": \" '/Delete token:/ { print \$2 } /Download link:/ { print \$2 }'"
+    echo ""
+    echo "  Show help text from \"transfer.sh\":"
+    echo "      curl --request GET \"https://transfer.sh\""
+    return 0
+  else
+    for file in "${file_array[@]}"; do
+      if [[ ! -f "${file}" ]]; then
+        echo -e "\e[01;31m'${file}' could not be found or is not a file.\e[0m" >&2
+        return 1
+      fi
+    done
+    unset file
+  fi
+
+  local upload_files
+  local curl_output
+  local awk_output
+
+  du -c -k -L "${file_array[@]}" >&2
+  # be compatible with "bash"
+  if [[ "${ZSH_NAME}" == "zsh" ]]; then
+    read $'upload_files?\e[01;31mDo you really want to upload the above files ('"${#file_array[@]}"$') to "transfer.sh"? (Y/n): \e[0m'
+  elif [[ "${BASH}" == *"bash"* ]]; then
+    read -p $'\e[01;31mDo you really want to upload the above files ('"${#file_array[@]}"$') to "transfer.sh"? (Y/n): \e[0m' upload_files
+  fi
+
+  case "${upload_files:-y}" in
+  "y" | "Y")
+    # for the sake of the progress bar, execute "curl" for each file.
+    # the parameters "--include" and "--form" will suppress the progress bar.
+    for file in "${file_array[@]}"; do
+      curl_output=$(curl --request PUT --progress-bar --dump-header - --upload-file "${file}" "${transfer_url}")
+      awk_output=$(awk \
+        'gsub("\r", "", $0) && tolower($1) ~ /x-url-delete/ \
+                                {
+                                    delete_link=$2;
+                                    print "Delete command: curl --request DELETE " "\""delete_link"\"";
+
+                                    gsub(".*/", "", delete_link);
+                                    delete_token=delete_link;
+                                    print "Delete token: " delete_token;
+                                }
+
+                                END{
+                                    print "Download link: " $0;
+                                }' <<<"${curl_output}")
+
+      echo -e "${awk_output}\n"
+
+      if ((${#file_array[@]} > 4)); then
+        sleep 5
+      fi
+    done
+    ;;
+
+  "n" | "N")
+    return 1
+    ;;
+
+  *)
+    echo -e "\e[01;31mWrong input: '${upload_files}'.\e[0m" >&2
+    return 1
+    ;;
+  esac
+}
+
+upload_zsync_files() {
+  print_section_start "upload_zsync_files" "Uploading .zsync files to transfer.sh"
+
+  local zsync_files=("${output}"/*.zsync)
+  if [[ ${#zsync_files[@]} -gt 0 ]]; then
+    transfer "${zsync_files[@]}"
+  fi
+
+  print_section_end "upload_zsync_files"
+}
+
 run_mkarchiso() {
-  # run mkarchiso
+  # Run mkarchiso
   print_section_start "mkarchiso" "Running mkarchiso"
   mkdir -p "${output}/" "${tmpdir}/"
   GNUPGHOME="${gnupg_homedir}" mkarchiso \
@@ -252,12 +355,6 @@ run_mkarchiso() {
     create_checksums "${output}/"*.iso
   fi
 
-  if [[ "${buildmode}" == "bootstrap" ]]; then
-    create_zsync_delta "${output}/"*.tar*(.gz|.xz|.zst)
-    create_checksums "${output}/"*.tar*(.gz|.xz|.zst)
-  fi
-  create_metrics
-
   print_section_start "ownership" "Setting ownership on output"
 
   if [[ -n "${SUDO_UID:-}" ]] && [[ -n "${SUDO_GID:-}" ]]; then
@@ -269,3 +366,4 @@ run_mkarchiso() {
 trap cleanup EXIT
 
 run_mkarchiso
+upload_zsync_files
